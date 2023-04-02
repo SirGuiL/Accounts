@@ -22,6 +22,12 @@ function operations() {
 
       if (action === "Criar conta") {
         createAccount();
+      } else if (action === "Consultar saldo") {
+      } else if (action === "Depositar") {
+      } else if (action === "Sacar") {
+      } else {
+        console.log(chalk.bgBlue.black("Obrigado por usar o Accounts!"));
+        process.exit();
       }
     })
     .catch((err) => {
@@ -57,7 +63,7 @@ function buildAccount() {
           chalk.bgRed.black("Essa conta já existe, escolha outro nome")
         );
         buildAccount();
-        return
+        return;
       }
 
       fs.writeFileSync(

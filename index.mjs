@@ -23,9 +23,11 @@ function operations() {
       if (action === "Criar conta") {
         createAccount();
       } else if (action === "Consultar saldo") {
+        getAccountBalance();
       } else if (action === "Depositar") {
         deposit();
       } else if (action === "Sacar") {
+        withdraw();
       } else {
         console.log(chalk.bgBlue.black("Obrigado por usar o Accounts!"));
         process.exit();
@@ -85,7 +87,6 @@ function buildAccount() {
 }
 
 // add an amount to user account
-
 function deposit() {
   inquirer
     .prompt([
@@ -115,9 +116,7 @@ function deposit() {
 
           operations();
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => console.log(err));
     })
     .catch((err) => {});
 }
@@ -147,9 +146,7 @@ function addAmount(accountName, amount) {
   fs.writeFileSync(
     `accounts/${accountName}.json`,
     JSON.stringify(accountData),
-    (err) => {
-      console.log(err);
-    }
+    (err) => console.log(err)
   );
 
   console.log(chalk.green(`Foi depositado o valor de R$${amount}`));
@@ -162,4 +159,69 @@ function getAccount(accountName) {
   });
 
   return JSON.parse(accountJSON);
+}
+
+// show account balance
+function getAccountBalance() {
+  inquirer
+    .prompt([
+      {
+        name: "accountName",
+        message: "Qual o nome da sua conta?",
+      },
+    ])
+    .then((answer) => {
+      const accountName = answer["accountName"];
+
+      // verify if account exists
+      if (!checkAccountExists(accountName)) {
+        return getAccountBalance();
+      }
+
+      const accountData = getAccount(accountName);
+
+      console.log(
+        chalk.bgBlue.white.bold(
+          `Olá, ${accountName}! O saldo da sua conta é de R$${accountData.balance}.`
+        )
+      );
+
+      operations();
+    })
+    .catch((err) => console.error(err));
+}
+
+// withdraw an amount from user account
+function withdraw() {
+  inquirer
+    .prompt([
+      {
+        name: "accountName",
+        message: "Qual o nome da sua conta?",
+      },
+    ])
+    .then((answer) => {
+      const accountName = answer["accountName"];
+
+      if (!checkAccountExists(accountName)) {
+        return withdraw();
+      }
+
+      inquirer
+        .prompt([
+          {
+            name: "amount",
+            message: "Quanto você deseja sacar?",
+          },
+        ])
+        .then((answer) => {
+          const amount = answer["amount"];
+
+          console.log(amount);
+
+          operations();
+        })
+        .catch((err) => console.error(err));
+    })
+    .catch((err) => console.error(err));
 }
